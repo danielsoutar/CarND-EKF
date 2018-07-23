@@ -10,6 +10,9 @@ using namespace std;
 // for convenience
 using json = nlohmann::json;
 
+VectorXd highestRMSE(4);
+bool rmse_set = false;
+
 // Checks if the SocketIO event has JSON data.
 // If there is data the JSON object in string format will be returned,
 // else the empty string "" will be returned.
@@ -105,7 +108,7 @@ int main()
     	  gt_values(3) = vy_gt;
     	  ground_truth.push_back(gt_values);
           
-          //Call ProcessMeasurment(meas_package) for Kalman filter
+        //Call ProcessMeasurment(meas_package) for Kalman filter
     	  fusionEKF.ProcessMeasurement(meas_package);    	  
 
     	  //Push the current estimated x,y positon from the Kalman filter's state vector
@@ -125,6 +128,21 @@ int main()
     	  estimations.push_back(estimate);
 
     	  VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
+
+        // if highest_rmse not set, then set it
+        // otherwise if RMSE is larger than highest_rmse at given index, update to new max
+        if(!rmse_set) {
+          highestRMSE = RMSE;
+          rmse_set = true;
+        }
+        else {
+          for (int i = 0; i < RMSE.size(); ++i) {
+            if(RMSE(i) > highestRMSE(i)) {
+              highestRMSE(i) = RMSE(i);
+            }
+          }
+        }
+        cout << "rmse (max at each index): \n" << RMSE << "\n";
 
           json msgJson;
           msgJson["estimate_x"] = p_x;

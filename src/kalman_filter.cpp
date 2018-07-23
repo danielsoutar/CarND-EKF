@@ -21,17 +21,28 @@ void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
 }
 
 void KalmanFilter::Predict() {
-  /**
-  TODO:
-    * predict the state
-  */
+  x_ = F_ * x_;
+  P_ = F_ * P_ * F_.transpose() + Q_;
+
+  // std::cout << "KalmanFilter::Predict() values: \n"
+  // std::cout << "x': " << x_ << "\n";
+  // std::cout << "P': " << P_ << "\n\n";
+}
+
+void KalmanFilter::UpdateY(const VectorXd &y) {
+  MatrixXd I = MatrixXd::Identity(4, 4);
+
+  MatrixXd Ht = H_.transpose();
+  MatrixXd S = H_ * P_ * Ht + R_;
+  MatrixXd K = P_ * Ht * S.inverse();
+
+  x_ = x_ + K * y;
+  P_ = (I - K * H_) * P_;
 }
 
 void KalmanFilter::Update(const VectorXd &z) {
-  /**
-  TODO:
-    * update the state by using Kalman Filter equations
-  */
+  VectorXd y = z - H_ * x_;
+  UpdateY(y);
 }
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
@@ -39,4 +50,63 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   TODO:
     * update the state by using Extended Kalman Filter equations
   */
+
+  float px = x_(0);
+  float py = x_(1);
+  float vx = x_(2);
+  float vy = x_(3);
+
+  float rho = std::sqrt(px*px + py*py);
+  float phi = std::atan2(py, px);
+  float rho_dot = (px*vx + py*vy) / rho;
+
+  VectorXd hx(3);
+  hx << rho, phi, rho_dot;
+
+  VectorXd y = z - hx;
+
+  while(y(1) < -M_PI || y(1) > M_PI) {
+    if(y(1) > M_PI)
+      y(1) -= 2 * M_PI;
+    else if(y(1) < -M_PI)
+      y(1) += 2* M_PI;
+  }
+
+  UpdateY(y);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
