@@ -131,18 +131,18 @@ int main()
 
         // if highest_rmse not set, then set it
         // otherwise if RMSE is larger than highest_rmse at given index, update to new max
-        if(!rmse_set) {
-          highestRMSE = RMSE;
-          rmse_set = true;
-        }
-        else {
-          for (int i = 0; i < RMSE.size(); ++i) {
-            if(RMSE(i) > highestRMSE(i)) {
-              highestRMSE(i) = RMSE(i);
-            }
-          }
-        }
-        cout << "rmse (max at each index): \n" << RMSE << "\n";
+        // if(!rmse_set) {
+        //   highestRMSE = RMSE;
+        //   rmse_set = true;
+        // }
+        // else {
+        //   for (int i = 0; i < RMSE.size(); ++i) {
+        //     if(RMSE(i) > highestRMSE(i)) {
+        //       highestRMSE(i) = RMSE(i);
+        //     }
+        //   }
+        // }
+        // cout << "rmse (max at each index): \n" << RMSE << "\n";
 
           json msgJson;
           msgJson["estimate_x"] = p_x;
