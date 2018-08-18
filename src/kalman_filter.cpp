@@ -23,12 +23,9 @@ void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
 void KalmanFilter::Predict() {
   x_ = F_ * x_;
   P_ = F_ * P_ * F_.transpose() + Q_;
-
-  // std::cout << "KalmanFilter::Predict() values: \n"
-  // std::cout << "x': " << x_ << "\n";
-  // std::cout << "P': " << P_ << "\n\n";
 }
 
+// Simple function that factors out duplication in radar and lidar updates.
 void KalmanFilter::UpdateY(const VectorXd &y) {
   MatrixXd I = MatrixXd::Identity(4, 4);
 
@@ -46,11 +43,6 @@ void KalmanFilter::Update(const VectorXd &z) {
 }
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
-  /**
-  TODO:
-    * update the state by using Extended Kalman Filter equations
-  */
-
   float px = x_(0);
   float py = x_(1);
   float vx = x_(2);
@@ -65,6 +57,7 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
 
   VectorXd y = z - hx;
 
+  // Normalise phi
   while(y(1) < -M_PI || y(1) > M_PI) {
     if(y(1) > M_PI)
       y(1) -= 2 * M_PI;
